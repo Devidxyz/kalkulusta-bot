@@ -1,0 +1,55 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Rating {
+  id          Int       @id @default(autoincrement())
+  userId      String    @db.Char(18)
+  channelId   String    @db.Char(18)
+  deleted     Boolean
+  ratingMsgId Int       @unique
+  ratingMsg   RatingMsg @relation(fields: [ratingMsgId], references: [id])
+
+  reports Report[]
+}
+
+model RatingMsg {
+  id           Int           @id @default(autoincrement())
+  msgId        String        @db.Char(18)
+  timestamp    DateTime
+  subject      String        @db.VarChar(100)
+  text         String        @db.VarChar(1024)
+  aspect1      Int           @db.TinyInt
+  aspect2      Int           @db.TinyInt
+  aspect3      Int           @db.TinyInt
+  aspect4      Int           @db.TinyInt
+  aspect5      Int           @db.TinyInt
+  sexy         Boolean
+  rating       Rating?
+  ratingStatus RatingStatus?
+}
+
+model RatingStatus {
+  userId      String     @id @db.Char(18)
+  channelId   String     @db.Char(18)
+  ratingMsgId Int?       @unique
+  ratingMsg   RatingMsg? @relation(fields: [ratingMsgId], references: [id])
+}
+
+model Report {
+  id       Int     @id @default(autoincrement())
+  userId   String  @db.Char(18)
+  reason   String? @db.VarChar(1024)
+  ratingId Int
+  rating   Rating  @relation(fields: [ratingId], references: [id])
+}
+
+model SummaryMessage {
+  channelId String @id @db.Char(18)
+  msgId     String @db.Char(18)
+}

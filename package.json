@@ -1,0 +1,43 @@
+{
+  "name": "kalkulusta-bot-ts",
+  "version": "1.0.0",
+  "main": "src/Main.ts",
+  "scripts": {
+    "dev": "nodemon  src/Main.ts"
+  },
+  "dependencies": {
+    "@discordx/importer": "^1.1.2",
+    "@prisma/client": "^3.7.0",
+    "discord.js": "^13.3.1",
+    "discordx": "^9.0.1",
+    "dotenv": "^10.0.0",
+    "prisma": "^3.7.0",
+    "reflect-metadata": "^0.1.13",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.13",
+    "@typescript-eslint/eslint-plugin": "^4.24.0",
+    "@typescript-eslint/parser": "^4.24.0",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.3",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.2",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --fix --cache --cache-location 'node_modules/.cache/.eslintcache'",
+    "*.{js,ts,md}": "pretty-quick --staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged"
+    }
+  }
+}
