@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 import { importx } from "@discordx/importer";
-import { Intents, MessageComponentInteraction } from "discord.js";
+import { Guild, Intents, MessageComponentInteraction } from "discord.js";
 import { Client } from "discordx";
 import config from "./config";
 import logger from "./utils/logger";
@@ -11,6 +11,8 @@ export default class Main {
   static get Client(): Client {
     return this._client;
   }
+
+  static guild: Guild;
 
   static async start(): Promise<void> {
     await importx(`${__dirname}/discords/*.{ts,js}`);
@@ -29,6 +31,7 @@ export default class Main {
     });
 
     this._client.on("ready", async () => {
+      this.guild = await this._client.guilds.fetch(config.guildId);
       logger.info(">> Bot started");
 
       await this._client.initApplicationCommands({
@@ -45,12 +48,6 @@ export default class Main {
     });
 
     this._client.on("interactionCreate", (interaction) => {
-      if (
-        interaction instanceof MessageComponentInteraction &&
-        interaction.customId?.startsWith("discordx@pagination@")
-      ) {
-        return;
-      }
       this._client.executeInteraction(interaction);
     });
 

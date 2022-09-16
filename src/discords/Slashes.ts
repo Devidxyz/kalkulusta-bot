@@ -1,8 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import { CommandInteraction } from "discord.js";
-import { Discord, Slash, SlashOption } from "discordx";
-import { getRatingStatus } from "../core";
+import { Discord, Slash } from "discordx";
+import { getEmptyStatusReply, getRatingStatus } from "../core";
 import Main from "../Main";
+import { STATUS } from "../static";
 import { logSlash } from "../utils/utils";
 
 @Discord()
@@ -10,13 +11,7 @@ abstract class Slashes {
   @Slash("ping", {
     description: "Get the latency of the bot and the discord API.",
   })
-  async ping(
-    @SlashOption("asd", { required: false })
-    asd: string,
-    @SlashOption("qwe", { required: false })
-    qwe: number,
-    interaction: CommandInteraction
-  ) {
+  async ping(interaction: CommandInteraction) {
     logSlash(interaction);
     await interaction.reply(
       `Latency is ${
@@ -40,9 +35,17 @@ abstract class Slashes {
     logSlash(interaction);
 
     const status = await getRatingStatus(interaction.user.id);
-    console.log(status);
 
-    await interaction.reply("start");
+    switch (status) {
+      case STATUS.EMPTY:
+        await interaction.reply(getEmptyStatusReply());
+
+        break;
+
+      default:
+        await interaction.reply("lol");
+        break;
+    }
   }
 }
 

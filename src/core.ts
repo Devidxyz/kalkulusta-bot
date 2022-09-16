@@ -1,7 +1,14 @@
+import {
+  InteractionReplyOptions,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+} from "discord.js";
 import prisma from "./database";
-import { STATUS } from "./static";
+import { alphabetEmojis, STATUS } from "./static";
+import { createButtonRows } from "./utils/utils";
 
-const getRatingStatus = async (userId: string) => {
+const getRatingStatus = async (userId: string): Promise<STATUS> => {
   const status = await prisma.ratingStatus.findUnique({
     where: { userId },
     select: {
@@ -60,5 +67,14 @@ const getRatingStatus = async (userId: string) => {
   throw new Error("Unkown status");
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export { getRatingStatus };
+const getEmptyStatusReply = (): InteractionReplyOptions => {
+  const rows = createButtonRows(null, alphabetEmojis);
+
+  const embed = new MessageEmbed({
+    title: "Válaszd ki az értékelendő oktató nevének a kezdőbetűjét!",
+  });
+
+  return { embeds: [embed], components: rows };
+};
+
+export { getRatingStatus, getEmptyStatusReply };

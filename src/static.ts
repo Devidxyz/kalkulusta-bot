@@ -1,5 +1,32 @@
 /* eslint-disable no-unused-vars */
-const alphabet = "abcdefghijklmnopqrstuvwxyz";
+const alphabet = "abcdefghijklmnoprstuvwxyz";
+const alphabetEmojis = [
+  "🇦",
+  "🇧",
+  "🇨",
+  "🇩",
+  "🇪",
+  "🇫",
+  "🇬",
+  "🇭",
+  "🇮",
+  "🇯",
+  "🇰",
+  "🇱",
+  "🇲",
+  "🇳",
+  "🇴",
+  "🇵",
+  "🇷",
+  "🇸",
+  "🇹",
+  "🇺",
+  "🇻",
+  "🇼",
+  "🇽",
+  "🇾",
+  "🇿",
+];
 
 // eslint-disable-next-line no-shadow
 enum STATUS {
@@ -15,5 +42,4 @@ enum STATUS {
   UNKONWN,
 }
 
-// eslint-disable-next-line import/prefer-default-export
-export { alphabet, STATUS };
+export { alphabet, alphabetEmojis, STATUS };
