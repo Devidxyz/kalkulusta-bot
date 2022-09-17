@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 import { importx } from "@discordx/importer";
-import { Guild, Intents } from "discord.js";
+import { Guild, IntentsBitField, Partials } from "discord.js";
 import { Client } from "discordx";
 import config from "./config";
 import { PendingRating } from "./types";
@@ -23,14 +23,14 @@ export default class Main {
     this._client = new Client({
       simpleCommand: { prefix: "!" },
       intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_PRESENCES,
-        Intents.FLAGS.DIRECT_MESSAGES,
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.GuildMembers,
+        IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.GuildMessageReactions,
+        IntentsBitField.Flags.GuildPresences,
+        IntentsBitField.Flags.DirectMessages,
       ],
-      partials: ["CHANNEL"],
+      partials: [Partials.Channel, Partials.Message, Partials.User],
     });
 
     this._client.on("ready", async () => {
@@ -41,7 +41,6 @@ export default class Main {
         guild: { log: true },
         global: { log: true },
       });
-      await this._client.initApplicationPermissions();
     });
 
     this._client.on("messageCreate", (message) => {

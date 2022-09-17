@@ -1,8 +1,11 @@
 import {
   CommandInteraction,
-  MessageActionRow,
-  MessageButton,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  MessageActionRowComponentBuilder,
 } from "discord.js";
+import Main from "../Main";
 import { STATUS } from "../static";
 import { PendingRating } from "../types";
 import logger from "./logger";
@@ -67,25 +70,37 @@ const logSlash = (interaction: CommandInteraction) => {
   );
 };
 
-const createButtonRows = (labels: string[], emojis: string[]) => {
-  const rows: MessageActionRow[] = [];
-  let buttons: MessageButton[] = [];
+const createButtonRows = (
+  status: STATUS,
+  labels: string[],
+  emojis: string[]
+): ActionRowBuilder<MessageActionRowComponentBuilder>[] => {
+  const rows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
+  let buttons: ButtonBuilder[] = [];
 
-  for (let i = 0; i < (labels?.length || emojis.length); i += 1) {
-    const button = new MessageButton({
-      style: "SECONDARY",
-      customId: i.toString(),
+  for (let i = 0; i < (labels?.length || emojis?.length); i += 1) {
+    const button = new ButtonBuilder({
+      style: ButtonStyle.Secondary,
+      customId: `${status}-${i.toString()}`,
       label: labels?.[i],
       emoji: emojis?.[i],
     });
     buttons.push(button);
     if (i % 5 === 4) {
-      rows.push(new MessageActionRow({ components: buttons }));
+      rows.push(
+        new ActionRowBuilder({
+          components: buttons,
+        })
+      );
       buttons = [];
     }
   }
   if (buttons.length > 0) {
-    rows.push(new MessageActionRow({ components: buttons }));
+    rows.push(
+      new ActionRowBuilder({
+        components: buttons,
+      })
+    );
   }
 
   return rows;
@@ -97,4 +112,15 @@ const channelToName = (channelName: string) =>
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()))
     .replace(/Dr$/, "Dr.");
 
-export { logSlash, createButtonRows, channelToName, getRatingStatus };
+const getTeacherChannels = async (letter: string) =>
+  (await Main.guild.channels.fetch()).filter(
+    (c) => c.parent?.name.toLowerCase() === letter
+  );
+
+export {
+  logSlash,
+  createButtonRows,
+  channelToName,
+  getRatingStatus,
+  getTeacherChannels,
+};

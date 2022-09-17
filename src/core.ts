@@ -1,12 +1,15 @@
-import { InteractionReplyOptions, MessageEmbed } from "discord.js";
-import Main from "./Main";
-import { alphabetEmojis } from "./static";
-import { channelToName, createButtonRows } from "./utils/utils";
+import { EmbedBuilder, InteractionReplyOptions } from "discord.js";
+import { alphabetEmojis, STATUS } from "./static";
+import {
+  channelToName,
+  createButtonRows,
+  getTeacherChannels,
+} from "./utils/utils";
 
 const getCharactersReply = (): InteractionReplyOptions => {
-  const rows = createButtonRows(null, alphabetEmojis);
+  const rows = createButtonRows(STATUS.CHARACTER, null, alphabetEmojis);
 
-  const embed = new MessageEmbed({
+  const embed = new EmbedBuilder({
     title: "Válaszd ki az értékelendő oktató nevének a kezdőbetűjét!",
   });
 
@@ -16,15 +19,13 @@ const getCharactersReply = (): InteractionReplyOptions => {
 const getTeacherNamesReply = async (
   letter: string
 ): Promise<InteractionReplyOptions> => {
-  const channels = await Main.guild.channels.fetch();
-  const teachers = channels
-    .filter((c) => c.parent && c.parent.name.toLowerCase() === letter)
-    .map((c) => channelToName(c.name));
+  const teacherChannels = await getTeacherChannels(letter);
+  const teachers = teacherChannels.map((c) => channelToName(c.name));
 
-  const embed = new MessageEmbed({
+  const embed = new EmbedBuilder({
     title: `${letter} betűvel kezdődő nevű oktatók`,
   });
-  const rows = createButtonRows(teachers, null);
+  const rows = createButtonRows(STATUS.TEACHER, teachers, null);
 
   return {
     embeds: [embed],
@@ -32,5 +33,7 @@ const getTeacherNamesReply = async (
     ephemeral: true,
   };
 };
+
+const getAskSubjectReply = async () => {};
 
 export { getCharactersReply, getTeacherNamesReply };

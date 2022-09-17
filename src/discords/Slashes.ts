@@ -8,7 +8,8 @@ import { getRatingStatus, logSlash } from "../utils/utils";
 
 @Discord()
 abstract class Slashes {
-  @Slash("ping", {
+  @Slash({
+    name: "ping",
     description: "Get the latency of the bot and the discord API.",
   })
   async ping(interaction: CommandInteraction) {
@@ -20,7 +21,8 @@ abstract class Slashes {
     );
   }
 
-  @Slash("help", {
+  @Slash({
+    name: "help",
     description: "Használati útmutató",
   })
   async help(interaction: CommandInteraction) {
@@ -28,7 +30,8 @@ abstract class Slashes {
     await interaction.reply("help");
   }
 
-  @Slash("start", {
+  @Slash({
+    name: "start",
     description: "Kezdj el egy értékelést",
   })
   async start(interaction: CommandInteraction) {
