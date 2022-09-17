@@ -1,6 +1,12 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable class-methods-use-this */
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonInteraction,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} from "discord.js";
 import { ButtonComponent, Discord } from "discordx";
 import { getTeacherNamesReply } from "../core";
 import Main from "../Main";
@@ -26,19 +32,45 @@ abstract class Buttons {
         pendingRating = { character: letter };
         break;
       case STATUS.TEACHER:
-        console.log(pendingRating.character);
         const teacherChannels = await getTeacherChannels(
           pendingRating.character
         );
-        console.log(teacherChannels.size);
         const teacherName = channelToName(
           [...teacherChannels.values()][choice].name
         );
-        const embed = new EmbedBuilder({
-          title: `${teacherName}`,
-          description: "Add meg a tárgy(ak) nevét, amely(ek)ből oktatott.",
+
+        const modal = new ModalBuilder({
+          customId: "subject-rating",
+          title: `${teacherName} értékelése`,
+          components: [
+            new ActionRowBuilder<TextInputBuilder>({
+              components: [
+                new TextInputBuilder({
+                  customId: "subject",
+                  label: "Tárgy(ak) nevét, amely(ek)ből oktatott",
+                  style: TextInputStyle.Short,
+                  placeholder: "Kalkulus I.",
+                  required: true,
+                  maxLength: 100,
+                }),
+              ],
+            }),
+            new ActionRowBuilder<TextInputBuilder>({
+              components: [
+                new TextInputBuilder({
+                  customId: "text",
+                  label: "Írj egy szöveges értékelést",
+                  style: TextInputStyle.Paragraph,
+                  placeholder:
+                    "Hogy jellemeznéd az oktató munkáját pár mondatban?",
+                  maxLength: 1024,
+                }),
+              ],
+            }),
+          ],
         });
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        interaction.showModal(modal);
+
         break;
 
       default:
