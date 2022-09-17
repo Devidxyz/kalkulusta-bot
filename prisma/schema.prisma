@@ -8,37 +8,22 @@ generator client {
 }
 
 model Rating {
-  id          Int       @id @default(autoincrement())
-  userId      String    @db.Char(18)
-  channelId   String    @db.Char(18)
-  deleted     Boolean
-  ratingMsgId Int       @unique
-  ratingMsg   RatingMsg @relation(fields: [ratingMsgId], references: [id])
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Char(18)
+  channelId String   @db.Char(18)
+  msgId     String   @db.Char(18)
+  timestamp DateTime
+  subject   String   @db.VarChar(100)
+  text      String   @db.VarChar(1024)
+  aspect1   Int      @db.TinyInt
+  aspect2   Int      @db.TinyInt
+  aspect3   Int      @db.TinyInt
+  aspect4   Int      @db.TinyInt
+  aspect5   Int      @db.TinyInt
+  sexy      Boolean
+  deleted   Boolean
 
   reports Report[]
-}
-
-model RatingMsg {
-  id           Int           @id @default(autoincrement())
-  msgId        String        @db.Char(18)
-  timestamp    DateTime
-  subject      String        @db.VarChar(100)
-  text         String        @db.VarChar(1024)
-  aspect1      Int           @db.TinyInt
-  aspect2      Int           @db.TinyInt
-  aspect3      Int           @db.TinyInt
-  aspect4      Int           @db.TinyInt
-  aspect5      Int           @db.TinyInt
-  sexy         Boolean
-  rating       Rating?
-  ratingStatus RatingStatus?
-}
-
-model RatingStatus {
-  userId      String     @id @db.Char(18)
-  channelId   String     @db.Char(18)
-  ratingMsgId Int?       @unique
-  ratingMsg   RatingMsg? @relation(fields: [ratingMsgId], references: [id])
 }
 
 model Report {

@@ -1,8 +1,9 @@
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 import { importx } from "@discordx/importer";
-import { Guild, Intents, MessageComponentInteraction } from "discord.js";
+import { Guild, Intents } from "discord.js";
 import { Client } from "discordx";
 import config from "./config";
+import { PendingRating } from "./types";
 import logger from "./utils/logger";
 
 export default class Main {
@@ -13,6 +14,8 @@ export default class Main {
   }
 
   static guild: Guild;
+
+  static pendingRatings: Map<string, PendingRating> = new Map();
 
   static async start(): Promise<void> {
     await importx(`${__dirname}/discords/*.{ts,js}`);

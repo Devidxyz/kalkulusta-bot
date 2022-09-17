@@ -31,6 +31,7 @@ const alphabetEmojis = [
 // eslint-disable-next-line no-shadow
 enum STATUS {
   EMPTY,
+  CHARACTER,
   TEACHER,
   SUBJECT,
   TEXT,

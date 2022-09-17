@@ -3,7 +3,55 @@ import {
   MessageActionRow,
   MessageButton,
 } from "discord.js";
+import { STATUS } from "../static";
+import { PendingRating } from "../types";
 import logger from "./logger";
+
+const getRatingStatus = async (
+  pendingRating: PendingRating
+): Promise<STATUS> => {
+  if (!pendingRating || !pendingRating.character) {
+    return STATUS.EMPTY;
+  }
+
+  if (pendingRating.character && !pendingRating.channelId) {
+    return STATUS.CHARACTER;
+  }
+
+  if (pendingRating.channelId && !pendingRating.subject) {
+    return STATUS.TEACHER;
+  }
+
+  if (pendingRating.subject && !pendingRating.text) {
+    return STATUS.SUBJECT;
+  }
+
+  if (pendingRating.text && !pendingRating.aspect1) {
+    return STATUS.TEXT;
+  }
+
+  if (pendingRating.aspect1 && !pendingRating.aspect2) {
+    return STATUS.ASPECT1;
+  }
+
+  if (pendingRating.aspect2 && !pendingRating.aspect3) {
+    return STATUS.ASPECT2;
+  }
+
+  if (pendingRating.aspect3 && !pendingRating.aspect4) {
+    return STATUS.ASPECT3;
+  }
+
+  if (pendingRating.aspect4 && !pendingRating.aspect5) {
+    return STATUS.ASPECT4;
+  }
+
+  if (pendingRating.aspect5 && !pendingRating.sexy) {
+    return STATUS.ASPECT5;
+  }
+
+  throw new Error("Unkown status");
+};
 
 const logSlash = (interaction: CommandInteraction) => {
   logger.verbose(
@@ -49,4 +97,4 @@ const channelToName = (channelName: string) =>
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()))
     .replace(/Dr$/, "Dr.");
 
-export { logSlash, createButtonRows, channelToName };
+export { logSlash, createButtonRows, channelToName, getRatingStatus };

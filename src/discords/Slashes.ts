@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { getEmptyStatusReply, getRatingStatus } from "../core";
+import { getCharactersReply } from "../core";
 import Main from "../Main";
 import { STATUS } from "../static";
-import { logSlash } from "../utils/utils";
+import { getRatingStatus, logSlash } from "../utils/utils";
 
 @Discord()
 abstract class Slashes {
@@ -34,12 +34,13 @@ abstract class Slashes {
   async start(interaction: CommandInteraction) {
     logSlash(interaction);
 
-    const status = await getRatingStatus(interaction.user.id);
+    const pendingRating = Main.pendingRatings.get(interaction.user.id);
+    const status = await getRatingStatus(pendingRating);
+    console.log(status);
 
     switch (status) {
       case STATUS.EMPTY:
-        await interaction.reply(getEmptyStatusReply());
-
+        await interaction.reply(getCharactersReply());
         break;
 
       default:
