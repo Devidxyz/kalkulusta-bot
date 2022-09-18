@@ -4,9 +4,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
   MessageActionRowComponentBuilder,
+  EmbedBuilder,
 } from "discord.js";
 import Main from "../Main";
-import { STATUS } from "../static";
+import { aspects, footer, serverEmojis, STATUS } from "../static";
 import { PendingRating } from "../types";
 import logger from "./logger";
 
@@ -29,28 +30,28 @@ const getRatingStatus = async (
     return STATUS.SUBJECT;
   }
 
-  if (pendingRating.text && !pendingRating.aspect1) {
+  if (pendingRating.text && !pendingRating.aspects[0]) {
     return STATUS.TEXT;
   }
 
-  if (pendingRating.aspect1 && !pendingRating.aspect2) {
+  if (pendingRating.aspects[0] && !pendingRating.aspects[1]) {
+    return STATUS.ASPECT0;
+  }
+
+  if (pendingRating.aspects[1] && !pendingRating.aspects[2]) {
     return STATUS.ASPECT1;
   }
 
-  if (pendingRating.aspect2 && !pendingRating.aspect3) {
+  if (pendingRating.aspects[2] && !pendingRating.aspects[3]) {
     return STATUS.ASPECT2;
   }
 
-  if (pendingRating.aspect3 && !pendingRating.aspect4) {
+  if (pendingRating.aspects[3] && !pendingRating.aspects[4]) {
     return STATUS.ASPECT3;
   }
 
-  if (pendingRating.aspect4 && !pendingRating.aspect5) {
+  if (pendingRating.aspects[4] && !pendingRating.sexy) {
     return STATUS.ASPECT4;
-  }
-
-  if (pendingRating.aspect5 && !pendingRating.sexy) {
-    return STATUS.ASPECT5;
   }
 
   throw new Error("Unkown status");
@@ -117,10 +118,35 @@ const getTeacherChannels = async (letter: string) =>
     (c) => c.parent?.name.toLowerCase() === letter
   );
 
+const buildRatingEmbed = (pendingRating: PendingRating) => {
+  const embed = new EmbedBuilder({
+    title: `Tárgy: ${
+      pendingRating.subject.charAt(0)?.toUpperCase() +
+      pendingRating.subject.slice(1)
+    }`,
+    description: pendingRating.subject,
+    fields: [
+      ...[...Array(5).keys()].map((i) => ({
+        name: aspects[i],
+        value: pendingRating.aspects[i].toString(),
+        inline: true,
+      })),
+      {
+        name: "Sexy",
+        value: pendingRating.sexy ? serverEmojis.sexy : "-",
+        inline: true,
+      },
+    ],
+    footer: { text: footer },
+  });
+  return embed;
+};
+
 export {
   logSlash,
   createButtonRows,
   channelToName,
   getRatingStatus,
   getTeacherChannels,
+  buildRatingEmbed,
 };

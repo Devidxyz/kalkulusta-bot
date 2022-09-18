@@ -18,11 +18,6 @@ export default class Main {
   static pendingRatings: Map<string, PendingRating> = new Map();
 
   static async start(): Promise<void> {
-    // for testing
-    this.pendingRatings.set("398115483590852620", {
-      character: "c",
-      channelId: "737706586935525405",
-    });
     await importx(`${__dirname}/discords/*.{ts,js}`);
 
     this._client = new Client({

@@ -4,6 +4,8 @@ dotenv.config();
 
 const discordToken = process.env.DISCORD_TOKEN;
 const guildId = process.env.GUILD;
+const reportEmoji = process.env.REPORT_EMOJI;
+const sexyEmoji = process.env.SEXY_EMOJI;
 
 const port = process.env.PORT || 8993;
 
@@ -19,4 +21,8 @@ export default {
   discordToken,
   guildId,
   port,
+  emojis: {
+    report: reportEmoji,
+    sexy: sexyEmoji,
+  },
 };
