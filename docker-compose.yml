@@ -12,8 +12,6 @@ services:
       - .env
     networks:
       - kalkulusta-network
-    ports:
-      - 8990:8990
 
   mysql:
     image: mysql:5.7
@@ -22,10 +20,6 @@ services:
       - .env.mysql
     networks:
       - kalkulusta-network
-    ports:
-      - "3306:3306"
-    expose:
-      - "3306:3306"
     volumes:
       - db:/opt/docker/data/kalkulusta/mysql
 
