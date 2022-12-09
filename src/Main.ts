@@ -1,26 +1,23 @@
-/* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 import { importx } from "@discordx/importer";
-import { Guild, IntentsBitField, Partials } from "discord.js";
+import { Guild, IntentsBitField, Partials, TextChannel } from "discord.js";
 import { Client } from "discordx";
 import config from "./config";
 import { PendingRating } from "./types";
 import logger from "./utils/logger";
 
 export default class Main {
-  private static _client: Client;
-
-  static get Client(): Client {
-    return this._client;
-  }
+  static client: Client;
 
   static guild: Guild;
+
+  static logChannel: TextChannel;
 
   static pendingRatings: Map<string, PendingRating> = new Map();
 
   static async start(): Promise<void> {
     await importx(`${__dirname}/discords/*.{ts,js}`);
 
-    this._client = new Client({
+    this.client = new Client({
       simpleCommand: { prefix: "!" },
       intents: [
         IntentsBitField.Flags.Guilds,
@@ -33,27 +30,31 @@ export default class Main {
       partials: [Partials.Channel, Partials.Message, Partials.User],
     });
 
-    this._client.on("ready", async () => {
-      this.guild = await this._client.guilds.fetch(config.guildId);
+    this.client.on("ready", async () => {
+      this.guild = await this.client.guilds.fetch(config.guildId);
+      this.logChannel = this.guild.channels.cache.find(
+        (c) => c.id === config.logChannal
+      ) as TextChannel;
+
       logger.info(">> Bot started");
 
-      await this._client.initApplicationCommands({
+      await this.client.initApplicationCommands({
         guild: { log: true },
         global: { log: true },
       });
     });
 
-    this._client.on("messageCreate", (message) => {
+    this.client.on("messageCreate", (message) => {
       if (!message.author.bot) {
-        this._client.executeCommand(message);
+        this.client.executeCommand(message);
       }
     });
 
-    this._client.on("interactionCreate", (interaction) => {
-      this._client.executeInteraction(interaction);
+    this.client.on("interactionCreate", (interaction) => {
+      this.client.executeInteraction(interaction);
     });
 
-    this._client.login(config.discordToken);
+    this.client.login(config.discordToken);
   }
 }
 

@@ -1,7 +1,8 @@
 build/
 node_modules/
 
-.env
+.env*
+todo.txt
 redis.env
 yarn-error.log
 .DS_Store

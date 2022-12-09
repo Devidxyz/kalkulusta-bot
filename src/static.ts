@@ -37,7 +37,6 @@ enum STATUS {
   EMPTY,
   CHARACTER,
   TEACHER,
-  SUBJECT,
   TEXT,
   ASPECT0,
   ASPECT1,
@@ -66,6 +65,17 @@ const interactionEmojis = {
 const serverEmojis = {
   sexy: `<:sexy:${config.emojis.sexy}>`,
   report: `<:report:${config.emojis.report}>`,
+  up: `<:up:${config.emojis.up}>`,
+  down: `<:down:${config.emojis.down}>`,
+};
+
+const colors = {
+  rating: 0x888aff,
+  summaryMessage: 0x29d6c8,
+  default: 0x2ecc70,
+  success: 0x008000,
+  warning: 0xffa500,
+  error: 0xff0000,
 };
 
 export {
@@ -77,4 +87,5 @@ export {
   footer,
   interactionEmojis,
   serverEmojis,
+  colors,
 };

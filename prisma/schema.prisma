@@ -4,15 +4,16 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
 }
 
 model Rating {
   id        Int      @id @default(autoincrement())
   userId    String   @db.Char(18)
   channelId String   @db.Char(18)
-  msgId     String   @db.Char(18)
-  timestamp DateTime
+  msgId     String   @unique @db.VarChar(20)
+  timestamp DateTime @default(now())
   subject   String   @db.VarChar(100)
   text      String   @db.VarChar(1024)
   aspect1   Int      @db.TinyInt
@@ -21,9 +22,10 @@ model Rating {
   aspect4   Int      @db.TinyInt
   aspect5   Int      @db.TinyInt
   sexy      Boolean
-  deleted   Boolean
+  deleted   Boolean  @default(false)
 
-  reports Report[]
+  reactions Reaction[]
+  reports   Report[]
 }
 
 model Report {
@@ -31,10 +33,19 @@ model Report {
   userId   String  @db.Char(18)
   reason   String? @db.VarChar(1024)
   ratingId Int
-  rating   Rating  @relation(fields: [ratingId], references: [id])
+  rating   Rating  @relation(fields: [ratingId], references: [id], onDelete: Cascade)
 }
 
 model SummaryMessage {
   channelId String @id @db.Char(18)
   msgId     String @db.Char(18)
+}
+
+model Reaction {
+  userId   String
+  msgId    String
+  rating   Rating  @relation(fields: [msgId], references: [msgId], onDelete: Cascade)
+  positive Boolean
+
+  @@id([userId, msgId])
 }

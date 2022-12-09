@@ -1,10 +1,9 @@
 /* eslint-disable class-methods-use-this */
 import { CommandInteraction, MessageOptions } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { getCharactersReply, getRestartRatingPayload } from "../core";
+import { getCharactersReply } from "../logic/replies";
 import Main from "../Main";
-import { STATUS } from "../static";
-import { getRatingStatus, logSlash } from "../utils/utils";
+import { logSlash } from "../utils/utils";
 
 @Discord()
 abstract class Slashes {
@@ -17,18 +16,18 @@ abstract class Slashes {
     await interaction.reply(
       `Latency is ${
         Date.now() - interaction.createdTimestamp
-      }ms. API Latency is ${Math.round(Main.Client.ws.ping)}ms`
+      }ms. API Latency is ${Math.round(Main.client.ws.ping)}ms`
     );
   }
 
-  @Slash({
-    name: "help",
-    description: "Használati útmutató",
-  })
-  async help(interaction: CommandInteraction) {
-    logSlash(interaction);
-    await interaction.reply("help");
-  }
+  // @Slash({
+  //   name: "help",
+  //   description: "Használati útmutató",
+  // })
+  // async help(interaction: CommandInteraction) {
+  //   logSlash(interaction);
+  //   await interaction.reply("help");
+  // }
 
   @Slash({
     name: "start",
@@ -38,9 +37,9 @@ abstract class Slashes {
     logSlash(interaction);
 
     if (!interaction.channel.isDMBased()) {
-      const user = await Main.Client.users.fetch(interaction.user.id);
+      const user = await Main.client.users.fetch(interaction.user.id);
       const directMessage = await user.send(
-        getRestartRatingPayload() as MessageOptions
+        getCharactersReply() as MessageOptions
       );
       await interaction.reply({
         content: `Folytassuk privátban ${directMessage.url}`,
@@ -49,14 +48,7 @@ abstract class Slashes {
       return;
     }
 
-    const pendingRating = Main.pendingRatings.get(interaction.user.id);
-    const status = await getRatingStatus(pendingRating);
-
-    if (status !== STATUS.EMPTY) {
-      await interaction.reply(getRestartRatingPayload());
-      return;
-    }
-
+    Main.pendingRatings.delete(interaction.user.id);
     await interaction.reply(getCharactersReply());
   }
 }

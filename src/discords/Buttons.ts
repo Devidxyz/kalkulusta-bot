@@ -2,89 +2,95 @@
 /* eslint-disable class-methods-use-this */
 import { ButtonInteraction, EmbedBuilder, TextBasedChannel } from "discord.js";
 import { ButtonComponent, Discord } from "discordx";
+import { handleReaction } from "../logic/buttons";
+import { getRatingModal, getReportModal } from "../logic/modals";
 import {
   getAskAspectReply,
   getAskSexyReply,
-  getAskSubmitPayload,
-  getRatingModal,
-  getRestartRatingPayload,
+  getAskSubmitReply,
+  getCharactersReply,
   getTeacherNamesReply,
-} from "../core";
+} from "../logic/replies";
+import prisma from "../database";
 import Main from "../Main";
-import { alphabet, footer, serverEmojis, STATUS } from "../static";
+import { alphabet, colors, footer, STATUS } from "../static";
+import { PendingRating } from "../types";
+import logger from "../utils/logger";
 import {
   buildRatingEmbed,
   channelToName,
+  getReactionRows,
   getTeacherChannels,
 } from "../utils/utils";
 
 @Discord()
 abstract class Buttons {
-  @ButtonComponent({ id: /\d-\d/ })
+  @ButtonComponent({ id: /\d/ })
   async ratingStep(interaction: ButtonInteraction) {
-    const data = interaction.customId.split("-");
-    const step: STATUS = +data[0];
-    const choice: number = +data[1];
+    const choice: number = +interaction.customId;
 
-    let pendingRating = Main.pendingRatings.get(interaction.user.id);
-    if (
-      !pendingRating &&
-      step !== STATUS.CHARACTER &&
-      step !== STATUS.TEACHER
-    ) {
-      await interaction.reply(getRestartRatingPayload());
-      return;
-    }
+    let pendingRating: PendingRating = Main.pendingRatings.get(
+      interaction.user.id
+    ) || { status: STATUS.CHARACTER };
 
-    switch (step) {
+    switch (pendingRating.status) {
       case STATUS.CHARACTER:
         const letter = alphabet[choice];
         const teacherNamePayload = await getTeacherNamesReply(letter);
-        await interaction.reply(teacherNamePayload);
-        pendingRating = { character: letter };
+        await interaction.update(teacherNamePayload);
+        pendingRating = {
+          character: letter,
+          status: STATUS.TEACHER,
+          aspects: [],
+          interaction,
+        };
         break;
       case STATUS.TEACHER:
         const teacherChannels = await getTeacherChannels(
           interaction.component.label?.[0]?.toLowerCase()
         );
         const teacherChannel = [...teacherChannels.values()][choice];
+        // TODO: check if already submitted rating
         const teacherName = channelToName(teacherChannel.name);
-        const ratingModal = await getRatingModal(teacherName);
-        pendingRating = { channelId: teacherChannel.id };
-        interaction.showModal(ratingModal);
+        const ratingModal = getRatingModal(teacherName);
+        pendingRating = {
+          ...pendingRating,
+          channelId: teacherChannel.id,
+          interaction,
+          status: pendingRating.status + 1,
+        };
+        await interaction.showModal(ratingModal);
         break;
       case STATUS.ASPECT0:
-        pendingRating.aspects = [choice + 1];
-        const askAspect1Payload = await getAskAspectReply(1);
-        await interaction.reply(askAspect1Payload);
-        break;
       case STATUS.ASPECT1:
-        pendingRating.aspects[1] = choice + 1;
-        const askAspect2Payload = await getAskAspectReply(2);
-        await interaction.reply(askAspect2Payload);
-        break;
       case STATUS.ASPECT2:
-        pendingRating.aspects[2] = choice + 1;
-        const askAspect3Payload = await getAskAspectReply(3);
-        await interaction.reply(askAspect3Payload);
-        break;
       case STATUS.ASPECT3:
-        pendingRating.aspects[3] = choice + 1;
-        const askAspect4Payload = await getAskAspectReply(4);
-        await interaction.reply(askAspect4Payload);
+        pendingRating.aspects.push(choice + 1);
+        pendingRating.status += 1;
+        const askAspectPayload = getAskAspectReply(
+          pendingRating.status - STATUS.ASPECT0
+        );
+        await interaction.update(askAspectPayload);
         break;
       case STATUS.ASPECT4:
         pendingRating.aspects[4] = choice + 1;
+        pendingRating.status += 1;
         const askSexyPayload = getAskSexyReply();
-        await interaction.reply(askSexyPayload);
+        await interaction.update(askSexyPayload);
         break;
       case STATUS.SEXY:
         pendingRating.sexy = choice === 0;
-        const askSubmitPayload = getAskSubmitPayload(pendingRating);
-        await interaction.reply(askSubmitPayload);
+        pendingRating.status += 1;
+        const askSubmitPayload = getAskSubmitReply(pendingRating);
+        await interaction.update(askSubmitPayload);
         break;
       default:
-        await interaction.reply(`${step} ${choice}`);
+        logger.error(
+          `ratingStep default case reached, pendingRating=${JSON.stringify(
+            pendingRating
+          )} ${interaction.customId}`
+        );
+        await interaction.update(getCharactersReply());
         break;
     }
 
@@ -106,10 +112,29 @@ abstract class Buttons {
       const channel: TextBasedChannel = (await Main.guild.channels.fetch(
         pendingRating.channelId
       )) as TextBasedChannel;
-      const ratingMessage = await channel.send({ embeds: [ratingEmbed] });
-      await ratingMessage.react("👍");
-      await ratingMessage.react("👎");
-      await ratingMessage.react(serverEmojis.report);
+      const rows = getReactionRows();
+      const ratingMessage = await channel.send({
+        embeds: [ratingEmbed],
+        components: rows,
+      });
+
+      await prisma.rating.create({
+        data: {
+          userId: interaction.user.id,
+          channelId: interaction.channelId,
+          msgId: ratingMessage.id,
+          subject: pendingRating.subject,
+          text: pendingRating.text,
+          aspect1: pendingRating.aspects[0],
+          aspect2: pendingRating.aspects[1],
+          aspect3: pendingRating.aspects[2],
+          aspect4: pendingRating.aspects[3],
+          aspect5: pendingRating.aspects[4],
+          sexy: pendingRating.sexy,
+        },
+      });
+
+      Main.pendingRatings.delete(interaction.user.id);
 
       const embed = new EmbedBuilder({
         title: "Köszönjük, hogy a Kalkulusták MMP-t választottad.",
@@ -118,18 +143,23 @@ abstract class Buttons {
           { name: "Ugrás az értékelésedhez", value: ratingMessage.url },
           {
             name: "A bot source code-ja",
-            value: "https://github.com/Devidxyz/kalkulusta-bot-ts",
+            value: "https://github.com/Devidxyz/kalkulusta-bot",
           },
           {
-            name: "Ha a bot működésében hibát tapasztalsz, vagy egyéb probléma esetén keresd őt:",
+            name: "Ha a bot működésében hibát tapasztalsz / egyéb probléma esetén keresd őt:",
             value: `<@398115483590852620>`,
           },
         ],
+        color: colors.success,
         footer: { text: footer },
       });
-      await interaction.reply({ embeds: [embed] });
+      await interaction.update({
+        content: null,
+        embeds: [embed],
+        components: [],
+      });
     } else {
-      await interaction.reply(getRestartRatingPayload());
+      await interaction.update(getCharactersReply());
     }
   }
 
@@ -140,8 +170,30 @@ abstract class Buttons {
       title: "Folyamat megszakítva",
       description:
         "Egy új értékelés megkezdéséhez a `/start` parancsot tudod használni.",
+      color: colors.warning,
+      footer: { text: footer },
     });
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.update({
+      content: null,
+      embeds: [embed],
+      components: [],
+    });
+  }
+
+  @ButtonComponent({ id: "up" })
+  async up(interaction: ButtonInteraction) {
+    handleReaction(interaction);
+  }
+
+  @ButtonComponent({ id: "down" })
+  async down(interaction: ButtonInteraction) {
+    handleReaction(interaction);
+  }
+
+  @ButtonComponent({ id: "report" })
+  async report(interaction: ButtonInteraction) {
+    const modal = getReportModal();
+    await interaction.showModal(modal);
   }
 }
 

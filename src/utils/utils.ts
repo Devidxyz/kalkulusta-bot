@@ -7,55 +7,9 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import Main from "../Main";
-import { aspects, footer, serverEmojis, STATUS } from "../static";
+import { aspects, colors, footer, serverEmojis } from "../static";
 import { PendingRating } from "../types";
 import logger from "./logger";
-
-const getRatingStatus = async (
-  pendingRating: PendingRating
-): Promise<STATUS> => {
-  if (!pendingRating || !pendingRating.character) {
-    return STATUS.EMPTY;
-  }
-
-  if (pendingRating.character && !pendingRating.channelId) {
-    return STATUS.CHARACTER;
-  }
-
-  if (pendingRating.channelId && !pendingRating.subject) {
-    return STATUS.TEACHER;
-  }
-
-  if (pendingRating.subject && !pendingRating.text) {
-    return STATUS.SUBJECT;
-  }
-
-  if (pendingRating.text && !pendingRating.aspects[0]) {
-    return STATUS.TEXT;
-  }
-
-  if (pendingRating.aspects[0] && !pendingRating.aspects[1]) {
-    return STATUS.ASPECT0;
-  }
-
-  if (pendingRating.aspects[1] && !pendingRating.aspects[2]) {
-    return STATUS.ASPECT1;
-  }
-
-  if (pendingRating.aspects[2] && !pendingRating.aspects[3]) {
-    return STATUS.ASPECT2;
-  }
-
-  if (pendingRating.aspects[3] && !pendingRating.aspects[4]) {
-    return STATUS.ASPECT3;
-  }
-
-  if (pendingRating.aspects[4] && !pendingRating.sexy) {
-    return STATUS.ASPECT4;
-  }
-
-  throw new Error("Unkown status");
-};
 
 const logSlash = (interaction: CommandInteraction) => {
   logger.verbose(
@@ -72,7 +26,6 @@ const logSlash = (interaction: CommandInteraction) => {
 };
 
 const createButtonRows = (
-  status: STATUS,
   labels: string[],
   emojis: string[]
 ): ActionRowBuilder<MessageActionRowComponentBuilder>[] => {
@@ -82,7 +35,7 @@ const createButtonRows = (
   for (let i = 0; i < (labels?.length || emojis?.length); i += 1) {
     const button = new ButtonBuilder({
       style: ButtonStyle.Secondary,
-      customId: `${status}-${i.toString()}`,
+      customId: i.toString(),
       label: labels?.[i],
       emoji: emojis?.[i],
     });
@@ -124,7 +77,7 @@ const buildRatingEmbed = (pendingRating: PendingRating) => {
       pendingRating.subject.charAt(0)?.toUpperCase() +
       pendingRating.subject.slice(1)
     }`,
-    description: pendingRating.subject,
+    description: pendingRating.text,
     fields: [
       ...[...Array(5).keys()].map((i) => ({
         name: aspects[i],
@@ -137,16 +90,54 @@ const buildRatingEmbed = (pendingRating: PendingRating) => {
         inline: true,
       },
     ],
+    color: colors.rating,
     footer: { text: footer },
   });
   return embed;
+};
+
+const getReactionRows = (up: number = 0, down: number = 0) => {
+  const rows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [
+    new ActionRowBuilder({
+      components: [
+        new ButtonBuilder({
+          style: ButtonStyle.Secondary,
+          customId: "up",
+          emoji: serverEmojis.up,
+        }),
+        new ButtonBuilder({
+          style: ButtonStyle.Secondary,
+          customId: "up-counter",
+          label: up.toString(),
+          disabled: true,
+        }),
+        new ButtonBuilder({
+          style: ButtonStyle.Secondary,
+          customId: "down",
+          emoji: serverEmojis.down,
+        }),
+        new ButtonBuilder({
+          style: ButtonStyle.Secondary,
+          customId: "down-counter",
+          label: down.toString(),
+          disabled: true,
+        }),
+        new ButtonBuilder({
+          style: ButtonStyle.Danger,
+          customId: "report",
+          emoji: serverEmojis.report,
+        }),
+      ],
+    }),
+  ];
+  return rows;
 };
 
 export {
   logSlash,
   createButtonRows,
   channelToName,
-  getRatingStatus,
   getTeacherChannels,
   buildRatingEmbed,
+  getReactionRows,
 };

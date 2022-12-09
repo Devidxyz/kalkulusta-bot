@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  kalkulusta-bot:
+    depends_on:
+      - mysql
+    container_name: kalkulusta-bot
+    build:
+      context: .
+    init: true
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - kalkulusta-network
+    ports:
+      - 8990:8990
+
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file:
+      - .env.mysql
+    networks:
+      - kalkulusta-network
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306:3306"
+    volumes:
+      - db:/opt/docker/data/kalkulusta/mysql
+
+networks:
+  kalkulusta-network:
+
+volumes:
+  db:

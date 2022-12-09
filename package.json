@@ -1,17 +1,19 @@
 {
-  "name": "kalkulusta-bot-ts",
+  "name": "kalkulusta-bot",
   "version": "2.0.0",
   "main": "src/Main.ts",
   "scripts": {
-    "dev": "nodemon  src/Main.ts"
+    "dev": "nodemon  src/Main.ts",
+    "build": "tsc",
+    "start": "node build/Main.js"
   },
   "dependencies": {
     "@discordx/importer": "^1.1.10",
-    "@prisma/client": "^3.7.0",
+    "@prisma/client": "^4.5.0",
     "discord.js": "^14.3.0",
     "discordx": "^11.2.0",
     "dotenv": "^10.0.0",
-    "prisma": "^3.7.0",
+    "prisma": "^4.5.0",
     "reflect-metadata": "^0.1.13",
     "winston": "^3.3.3"
   },

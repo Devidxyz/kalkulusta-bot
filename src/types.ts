@@ -1,4 +1,9 @@
+import { ButtonInteraction } from "discord.js";
+import { STATUS } from "./static";
+
 type PendingRating = {
+  status: STATUS;
+  interaction?: ButtonInteraction;
   character?: string;
   channelId?: string;
   subject?: string;
