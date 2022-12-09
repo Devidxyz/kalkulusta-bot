@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE `Rating` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `userId` CHAR(18) NOT NULL,
-    `channelId` CHAR(18) NOT NULL,
+    `userId` VARCHAR(20) NOT NULL,
+    `channelId` VARCHAR(20) NOT NULL,
     `msgId` VARCHAR(20) NOT NULL,
     `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `subject` VARCHAR(100) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE `Rating` (
 -- CreateTable
 CREATE TABLE `Report` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `userId` CHAR(18) NOT NULL,
+    `userId` VARCHAR(20) NOT NULL,
     `reason` VARCHAR(1024) NULL,
     `ratingId` INTEGER NOT NULL,
 
@@ -31,8 +31,8 @@ CREATE TABLE `Report` (
 
 -- CreateTable
 CREATE TABLE `SummaryMessage` (
-    `channelId` CHAR(18) NOT NULL,
-    `msgId` CHAR(18) NOT NULL,
+    `channelId` VARCHAR(20) NOT NULL,
+    `msgId` VARCHAR(20) NOT NULL,
 
     PRIMARY KEY (`channelId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

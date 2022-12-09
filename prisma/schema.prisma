@@ -10,8 +10,8 @@ generator client {
 
 model Rating {
   id        Int      @id @default(autoincrement())
-  userId    String   @db.Char(18)
-  channelId String   @db.Char(18)
+  userId    String   @db.VarChar(20)
+  channelId String   @db.VarChar(20)
   msgId     String   @unique @db.VarChar(20)
   timestamp DateTime @default(now())
   subject   String   @db.VarChar(100)
@@ -30,15 +30,15 @@ model Rating {
 
 model Report {
   id       Int     @id @default(autoincrement())
-  userId   String  @db.Char(18)
+  userId   String  @db.VarChar(20)
   reason   String? @db.VarChar(1024)
   ratingId Int
   rating   Rating  @relation(fields: [ratingId], references: [id], onDelete: Cascade)
 }
 
 model SummaryMessage {
-  channelId String @id @db.Char(18)
-  msgId     String @db.Char(18)
+  channelId String @id @db.VarChar(20)
+  msgId     String @db.VarChar(20)
 }
 
 model Reaction {

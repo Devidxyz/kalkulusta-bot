@@ -9,7 +9,7 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2017", "esnext.asynciterable"],
+    "lib": ["es2021", "esnext.asynciterable"],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true

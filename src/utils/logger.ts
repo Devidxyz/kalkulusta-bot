@@ -2,14 +2,17 @@ import { createLogger, format, transports } from "winston";
 
 const { printf, combine, colorize, timestamp, errors } = format;
 
-const devLogFormat = printf(
-  (log) =>
-    `${log.timestamp} ${log.level}: ${
-      log.stack || typeof log.message === "object"
-        ? JSON.stringify(log.message)
-        : log.message
-    }`
-);
+const devLogFormat = printf((log) => {
+  let msg = `${log.timestamp} ${log.level}: ${
+    log.stack || typeof log.message === "object"
+      ? JSON.stringify(log.message)
+      : log.message
+  }`;
+  if (log.stack) {
+    msg += log.stack;
+  }
+  return msg;
+});
 const logger = createLogger({
   level: "verbose",
   format: combine(

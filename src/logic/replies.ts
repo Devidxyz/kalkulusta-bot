@@ -45,6 +45,7 @@ const getTeacherNamesReply = async (
   const rows = createButtonRows(teachers, null);
 
   return {
+    content: null,
     embeds: [embed],
     components: rows,
   };
@@ -58,6 +59,7 @@ const getAskAspectReply = (num: number): InteractionUpdateOptions => {
   });
   const rows = createButtonRows(null, numberEmojis);
   return {
+    content: null,
     embeds: [embed],
     components: rows,
   };
@@ -74,6 +76,7 @@ const getAskSexyReply = (): InteractionUpdateOptions => {
     interactionEmojis.x,
   ]);
   return {
+    content: null,
     embeds: [embed],
     components: rows,
   };

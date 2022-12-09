@@ -1,58 +1,29 @@
 /* eslint-disable class-methods-use-this */
-import { EmbedBuilder, ModalSubmitInteraction } from "discord.js";
+import { ModalSubmitInteraction } from "discord.js";
 import { Discord, ModalComponent } from "discordx";
-import { getAskAspectReply, getCharactersReply } from "../logic/replies";
-import Main from "../Main";
-import { colors, footer } from "../static";
+import { handleReportSubmit, handleSubjectRatingSubmit } from "../logic/modals";
+import logger from "../utils/logger";
 
 @Discord()
 class Modals {
   @ModalComponent({ id: "subject-rating" })
   async subjectRating(interaction: ModalSubmitInteraction) {
-    const pendingRating = Main.pendingRatings.get(interaction.user.id);
-    if (!pendingRating) {
-      await interaction.reply(getCharactersReply());
-      return;
+    try {
+      await handleSubjectRatingSubmit(interaction);
+    } catch (error) {
+      logger.error("subjectRating modal interaction failed");
+      logger.error(error);
     }
-
-    pendingRating.subject = interaction.fields.getTextInputValue("subject");
-    pendingRating.text = interaction.fields.getTextInputValue("text");
-    pendingRating.status += 1;
-
-    Main.pendingRatings.set(interaction.user.id, pendingRating);
-
-    const payload = getAskAspectReply(0);
-    await interaction.deferUpdate();
-    await pendingRating.interaction.editReply(payload);
   }
 
   @ModalComponent({ id: "report-submit" })
   async report(interaction: ModalSubmitInteraction) {
-    const embed = new EmbedBuilder({
-      title: `${interaction.user.username}#${interaction.user.discriminator} reported a message in #${interaction.channel.name}`,
-      fields: [
-        { name: "Author", value: `<@${interaction.user.id}>`, inline: true },
-        {
-          name: "Channel",
-          value: `<#${interaction.channel.id}>`,
-          inline: true,
-        },
-        {
-          name: "Reason",
-          value: interaction.fields.getTextInputValue("reason"),
-          inline: false,
-        },
-        {
-          name: "Link",
-          value: interaction.message.url,
-          inline: false,
-        },
-      ],
-      color: colors.warning,
-      footer: { text: footer },
-    });
-    Main.logChannel.send({ embeds: [embed] });
-    await interaction.deferUpdate();
+    try {
+      await handleReportSubmit(interaction);
+    } catch (error) {
+      logger.error("report modal interaction failed");
+      logger.error(error);
+    }
   }
 }
 

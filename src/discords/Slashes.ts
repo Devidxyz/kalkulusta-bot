@@ -1,9 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import { CommandInteraction, MessageOptions } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { getCharactersReply } from "../logic/replies";
-import Main from "../Main";
-import { logSlash } from "../utils/utils";
+import { pingCommand, startCommand } from "../logic/commands";
+import logger from "../utils/logger";
 
 @Discord()
 abstract class Slashes {
@@ -12,44 +11,25 @@ abstract class Slashes {
     description: "Get the latency of the bot and the discord API.",
   })
   async ping(interaction: CommandInteraction) {
-    logSlash(interaction);
-    await interaction.reply(
-      `Latency is ${
-        Date.now() - interaction.createdTimestamp
-      }ms. API Latency is ${Math.round(Main.client.ws.ping)}ms`
-    );
+    try {
+      await pingCommand(interaction);
+    } catch (error) {
+      logger.error("ping command interaction failed");
+      logger.error(error);
+    }
   }
-
-  // @Slash({
-  //   name: "help",
-  //   description: "Használati útmutató",
-  // })
-  // async help(interaction: CommandInteraction) {
-  //   logSlash(interaction);
-  //   await interaction.reply("help");
-  // }
 
   @Slash({
     name: "start",
     description: "Kezdj el egy értékelést",
   })
   async start(interaction: CommandInteraction) {
-    logSlash(interaction);
-
-    if (!interaction.channel.isDMBased()) {
-      const user = await Main.client.users.fetch(interaction.user.id);
-      const directMessage = await user.send(
-        getCharactersReply() as MessageOptions
-      );
-      await interaction.reply({
-        content: `Folytassuk privátban ${directMessage.url}`,
-        ephemeral: true,
-      });
-      return;
+    try {
+      await startCommand(interaction);
+    } catch (error) {
+      logger.error("start command interaction failed");
+      logger.error(error);
     }
-
-    Main.pendingRatings.delete(interaction.user.id);
-    await interaction.reply(getCharactersReply());
   }
 }
 
