@@ -1,8 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { pingCommand, startCommand } from "../logic/commands";
+import { refreshSummaryMessage } from "../logic/summary";
 import logger from "../utils/logger";
+import { logSlash } from "../utils/utils";
 
 @Discord()
 abstract class Slashes {
@@ -12,6 +14,7 @@ abstract class Slashes {
   })
   async ping(interaction: CommandInteraction) {
     try {
+      logSlash(interaction);
       await pingCommand(interaction);
     } catch (error) {
       logger.error("ping command interaction failed");
@@ -25,9 +28,26 @@ abstract class Slashes {
   })
   async start(interaction: CommandInteraction) {
     try {
+      logSlash(interaction);
       await startCommand(interaction);
     } catch (error) {
       logger.error("start command interaction failed");
+      logger.error(error);
+    }
+  }
+
+  @Slash({
+    name: "refresh",
+    description: "Összesítő üzenet frissítése (moderátoroknak)",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+  })
+  async refresh(interaction: CommandInteraction) {
+    try {
+      logSlash(interaction);
+      await refreshSummaryMessage(interaction.channel);
+      await interaction.reply({ content: "done", ephemeral: true });
+    } catch (error) {
+      logger.error("refresh command interaction failed");
       logger.error(error);
     }
   }

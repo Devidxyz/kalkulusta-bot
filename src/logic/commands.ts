@@ -1,10 +1,8 @@
 import { CommandInteraction, MessageOptions } from "discord.js";
 import Main from "../Main";
-import { logSlash } from "../utils/utils";
 import { getCharactersReply } from "./replies";
 
 const pingCommand = async (interaction: CommandInteraction) => {
-  logSlash(interaction);
   await interaction.reply(
     `Latency is ${
       Date.now() - interaction.createdTimestamp
@@ -13,8 +11,6 @@ const pingCommand = async (interaction: CommandInteraction) => {
 };
 
 const startCommand = async (interaction: CommandInteraction) => {
-  logSlash(interaction);
-
   if (!interaction.channel.isDMBased()) {
     const user = await Main.client.users.fetch(interaction.user.id);
     const directMessage = await user.send(
