@@ -31,7 +31,10 @@ const handleRatingStep = async (interaction: ButtonInteraction) => {
   switch (pendingRating.status) {
     case STATUS.CHARACTER:
       const letter = alphabet[choice];
-      const teacherNamePayload = await getTeacherNamesReply(letter);
+      const teacherNamePayload = await getTeacherNamesReply(
+        letter,
+        pendingRating.page
+      );
       await interaction.update(teacherNamePayload);
       pendingRating = {
         character: letter,
@@ -44,7 +47,9 @@ const handleRatingStep = async (interaction: ButtonInteraction) => {
       const teacherChannels = await getTeacherChannels(
         interaction.component.label?.[0]?.toLowerCase()
       );
-      const teacherChannel = [...teacherChannels.values()][choice];
+      const teacherChannel = [...teacherChannels.values()][
+        choice + (pendingRating.page ? pendingRating.page * 25 : 0)
+      ];
 
       const existingRating = await prisma.rating.findFirst({
         where: { channelId: teacherChannel.id, userId: interaction.user.id },
@@ -63,7 +68,6 @@ const handleRatingStep = async (interaction: ButtonInteraction) => {
         ...pendingRating,
         channelId: teacherChannel.id,
         interaction,
-        status: pendingRating.status + 1,
       };
       await interaction.showModal(ratingModal);
       break;
@@ -96,6 +100,7 @@ const handleRatingStep = async (interaction: ButtonInteraction) => {
           pendingRating
         )} ${interaction.customId}`
       );
+      Main.pendingRatings.delete(interaction.user.id);
       await interaction.update(getCharactersReply());
       break;
   }
@@ -267,4 +272,32 @@ const handleReaction = async (interaction: ButtonInteraction) => {
   }
 };
 
-export { handleRatingStep, handleSubmit, handleReset, handleReaction };
+const handlePageChange = async (
+  interaction: ButtonInteraction,
+  next: boolean
+) => {
+  const pendingRating: PendingRating = Main.pendingRatings.get(
+    interaction.user.id
+  );
+
+  if (!pendingRating || !pendingRating.character) {
+    await interaction.update(getCharactersReply());
+  }
+
+  pendingRating.page = next ? 1 : 0;
+  const teacherNamePayload = await getTeacherNamesReply(
+    pendingRating.character,
+    pendingRating.page
+  );
+  await interaction.update(teacherNamePayload);
+
+  Main.pendingRatings.set(interaction.user.id, pendingRating);
+};
+
+export {
+  handleRatingStep,
+  handleSubmit,
+  handleReset,
+  handleReaction,
+  handlePageChange,
+};

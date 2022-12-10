@@ -4,6 +4,7 @@ import { STATUS } from "./static";
 type PendingRating = {
   status: STATUS;
   interaction?: ButtonInteraction;
+  page?: number;
   character?: string;
   channelId?: string;
   subject?: string;

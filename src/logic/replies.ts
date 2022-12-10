@@ -33,16 +33,35 @@ const getCharactersReply = () => {
 };
 
 const getTeacherNamesReply = async (
-  letter: string
+  letter: string,
+  page: number = 0
 ): Promise<InteractionUpdateOptions> => {
   const teacherChannels = await getTeacherChannels(letter);
-  const teachers = teacherChannels.map((c) => channelToName(c.name));
+  let teachers = teacherChannels.map((c) => channelToName(c.name));
+
+  let morePages = false;
+  if (teachers.length > 25) {
+    teachers = teachers.slice(page * 25, (page + 1) * 25 - 1);
+    morePages = true;
+  }
+
+  const rows = createButtonRows(teachers, null);
+
+  if (morePages) {
+    rows[rows.length - 1].addComponents(
+      new ButtonBuilder({
+        emoji: page === 0 ? "➡️" : "⬅️",
+        label: "lapoz",
+        style: ButtonStyle.Primary,
+        customId: page === 0 ? "next-page" : "previous-page",
+      })
+    );
+  }
 
   const embed = new EmbedBuilder({
     title: `"${letter.toUpperCase()}" betűvel kezdődő nevű oktatók`,
     color: colors.default,
   });
-  const rows = createButtonRows(teachers, null);
 
   return {
     content: null,

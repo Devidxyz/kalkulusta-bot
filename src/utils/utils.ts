@@ -5,6 +5,8 @@ import {
   ButtonStyle,
   MessageActionRowComponentBuilder,
   EmbedBuilder,
+  ButtonInteraction,
+  ModalSubmitInteraction,
 } from "discord.js";
 import Main from "../Main";
 import { aspects, colors, footer, serverEmojis } from "../static";
@@ -22,6 +24,20 @@ const logSlash = (interaction: CommandInteraction) => {
             .join(", ")})`
         : ""
     }`
+  );
+};
+
+const logButtonClick = (interaction: ButtonInteraction) => {
+  logger.verbose(
+    `${interaction.user.username}#${interaction.user.discriminator} clicked ${interaction.customId}`
+  );
+};
+
+const logModalSubmit = (interaction: ModalSubmitInteraction) => {
+  logger.verbose(
+    `${interaction.user.username}#${
+      interaction.user.discriminator
+    } submitted ${JSON.stringify(interaction.fields.fields)}`
   );
 };
 
@@ -135,6 +151,8 @@ const getReactionRows = (up: number = 0, down: number = 0) => {
 
 export {
   logSlash,
+  logButtonClick,
+  logModalSubmit,
   createButtonRows,
   channelToName,
   getTeacherChannels,
