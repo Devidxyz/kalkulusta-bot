@@ -6,7 +6,7 @@
 
 ## About Kalkulusták MMP
 
-Kalkulusták MMP is a community driven [Discord server](https://discord.gg/ecyurHj) which provides an anonym way to rate the teachers of University of Szeged. It was created to partially replace the [Mark My Professor](www.markmyprofessor.com) website, because it isn't maintaned anymore.
+Kalkulusták MMP is a community driven [Discord server](https://discord.gg/ecyurHj) which provides an anonym way to rate the teachers of University of Szeged. It was created to partially replace the [Mark My Professor](http://www.markmyprofessor.com) website, because it isn't maintaned anymore.
 
 ## Join Kalkulusták MMP
 
