@@ -84,7 +84,7 @@ const channelToName = (channelName: string) =>
 
 const getTeacherChannels = async (letter: string) =>
   (await Main.guild.channels.fetch()).filter(
-    (c) => c.parent?.name.toLowerCase() === letter
+    (c) => c?.parent?.name.toLowerCase() === letter
   );
 
 const buildRatingEmbed = (pendingRating: PendingRating) => {
