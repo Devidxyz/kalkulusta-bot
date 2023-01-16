@@ -40,22 +40,30 @@ const getTeacherNamesReply = async (
   let teachers = teacherChannels.map((c) => channelToName(c.name));
 
   let morePages = false;
-  if (teachers.length > 25) {
-    teachers = teachers.slice(page * 25, (page + 1) * 25 - 1);
+  if (teachers.length > 24) {
+    teachers = teachers.slice(page * 24, (page + 1) * 24);
     morePages = true;
   }
 
   const rows = createButtonRows(teachers, null);
 
   if (morePages) {
-    rows[rows.length - 1].addComponents(
-      new ButtonBuilder({
-        emoji: page === 0 ? "➡️" : "⬅️",
-        label: "lapoz",
-        style: ButtonStyle.Primary,
-        customId: page === 0 ? "next-page" : "previous-page",
-      })
-    );
+    const nextPageButton = new ButtonBuilder({
+      emoji: page === 0 ? "➡️" : "⬅️",
+      label: "lapoz",
+      style: ButtonStyle.Primary,
+      customId: page === 0 ? "next-page" : "previous-page",
+    });
+
+    if (rows[rows.length - 1].components.length !== 5) {
+      rows[rows.length - 1].addComponents(nextPageButton);
+    } else {
+      rows.push(
+        new ActionRowBuilder({
+          components: [nextPageButton],
+        })
+      );
+    }
   }
 
   const embed = new EmbedBuilder({

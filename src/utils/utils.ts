@@ -83,9 +83,9 @@ const channelToName = (channelName: string) =>
     .replace(/Dr$/, "Dr.");
 
 const getTeacherChannels = async (letter: string) =>
-  (await Main.guild.channels.fetch()).filter(
-    (c) => c?.parent?.name.toLowerCase() === letter
-  );
+  (await Main.guild.channels.fetch())
+    .filter((c) => c?.parent?.name.toLowerCase() === letter)
+    .sort();
 
 const buildRatingEmbed = (pendingRating: PendingRating) => {
   const embed = new EmbedBuilder({
