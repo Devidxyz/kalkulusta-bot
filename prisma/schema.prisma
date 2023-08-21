@@ -44,7 +44,6 @@ model Reaction {
   userId   String
   msgId    String
   positive Boolean
-  ratingId Int?
 
   @@id([userId, msgId])
 }
