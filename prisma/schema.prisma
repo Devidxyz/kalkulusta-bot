@@ -24,8 +24,7 @@ model Rating {
   sexy      Boolean
   deleted   Boolean  @default(false)
 
-  reactions Reaction[]
-  reports   Report[]
+  reports Report[]
 }
 
 model Report {
@@ -44,8 +43,8 @@ model SummaryMessage {
 model Reaction {
   userId   String
   msgId    String
-  rating   Rating  @relation(fields: [msgId], references: [msgId], onDelete: Cascade)
   positive Boolean
+  ratingId Int?
 
   @@id([userId, msgId])
 }
