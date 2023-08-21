@@ -38,10 +38,7 @@ export default class Main {
 
       logger.info(">> Bot started");
 
-      await this.client.initApplicationCommands({
-        guild: { log: true },
-        global: { log: true },
-      });
+      await this.client.initApplicationCommands();
     });
 
     this.client.on("messageCreate", (message) => {

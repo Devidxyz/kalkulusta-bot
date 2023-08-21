@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageOptions } from "discord.js";
+import { CommandInteraction } from "discord.js";
 import Main from "../Main";
 import { getCharactersReply } from "./replies";
 
@@ -13,9 +13,7 @@ const pingCommand = async (interaction: CommandInteraction) => {
 const startCommand = async (interaction: CommandInteraction) => {
   if (!interaction.channel.isDMBased()) {
     const user = await Main.client.users.fetch(interaction.user.id);
-    const directMessage = await user.send(
-      getCharactersReply() as MessageOptions
-    );
+    const directMessage = await user.send(getCharactersReply());
     await interaction.reply({
       content: `Folytassuk privátban ${directMessage.url}`,
       ephemeral: true,
