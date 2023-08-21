@@ -21,7 +21,7 @@ services:
     networks:
       - kalkulusta-network
     volumes:
-      - db:/opt/docker/data/kalkulusta/mysql
+      - /opt/docker/data/kalkulusta/mysql:/var/lib/mysql
 
 networks:
   kalkulusta-network:
